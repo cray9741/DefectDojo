@@ -1,7 +1,5 @@
 import json
-
 from dojo.models import Finding
-
 
 class CheckovParser:
     def get_scan_types(self):
@@ -45,59 +43,59 @@ class CheckovParser:
             raise ValueError(msg)
 
         return (
-            [deserialized] if not isinstance(
-                deserialized, list) else deserialized
+            [deserialized] if not isinstance(deserialized, list) else deserialized
         )
 
     def get_items(self, tree, test, check_type):
         items = []
 
-        failed_checks = tree.get("results", {}).get("failed_checks", [])
+        failed_checks = tree.get("vulnerabilities", [])
         for node in failed_checks:
-            item = get_item(node, test, check_type)
+            item = self.get_item(node, test, check_type)
             if item:
                 items.append(item)
 
-        return list(items)
+        return items
 
+    def get_item(self, vuln, test, check_type):
+        title = vuln.get("id", "No title provided")
+        description = f"Check Type: {check_type}\n"
+        description += f"Description: {vuln.get('description', 'No description provided')}\n"
+        if vuln.get("id"):
+            description += f"Check Id: {vuln['id']}\n"
 
-def get_item(vuln, test, check_type):
-    title = (
-        vuln["check_name"] if "check_name" in vuln else "check_name not found"
-    )
-    description = f"Check Type: {check_type}\n"
-    if "check_id" in vuln:
-        description += f"Check Id: {vuln['check_id']}\n"
-    if "check_name" in vuln:
-        description += f"{vuln['check_name']}\n"
+        file_path = None
+        resource = None
+        if "affects" in vuln and vuln["affects"]:
+            affected = vuln["affects"][0]
+            file_path = affected.get("ref")
+            resource = affected.get("ref")
 
-    file_path = vuln["file_path"] if "file_path" in vuln else None
-    source_line = None
-    if "file_line_range" in vuln:
-        lines = vuln["file_line_range"]
-        source_line = lines[0]
+        # Map unsupported severity levels to supported ones
+        severity = "Medium"
+        if "ratings" in vuln and vuln["ratings"]:
+            severity_value = vuln["ratings"][0].get("severity", "Medium").capitalize()
+            if severity_value not in ['Info', 'Low', 'Medium', 'High', 'Critical']:
+                severity = "Medium"
+            else:
+                severity = severity_value
 
-    resource = None
-    if "resource" in vuln:
-        resource = vuln["resource"]
+        mitigation = ""
 
-    severity = "Medium"
-    if "severity" in vuln and vuln["severity"] is not None:
-        severity = vuln["severity"].capitalize()
+        references = ""
+        if "advisories" in vuln and vuln["advisories"]:
+            references = ", ".join([adv["url"] for adv in vuln["advisories"]])
 
-    mitigation = ""
-
-    references = vuln["guideline"] if "guideline" in vuln else ""
-    return Finding(
-        title=title,
-        test=test,
-        description=description,
-        severity=severity,
-        mitigation=mitigation,
-        references=references,
-        file_path=file_path,
-        line=source_line,
-        component_name=resource,
-        static_finding=True,
-        dynamic_finding=False,
-    )
+        return Finding(
+            title=title,
+            test=test,
+            description=description,
+            severity=severity,
+            mitigation=mitigation,
+            references=references,
+            file_path=file_path,
+            line=None,
+            component_name=resource,
+            static_finding=True,
+            dynamic_finding=False,
+        )
