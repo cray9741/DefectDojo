@@ -47,8 +47,8 @@ docker-compose features and flags. You can run Compose V2 by replacing the hyphe
 
 ```sh
 # Clone the project
-git clone https://github.com/DefectDojo/django-DefectDojo
-cd django-DefectDojo
+git clone https://github.com/cray9741/DefectDojo.git
+cd DefectDojo
 
 # Building Docker images
 ./dc-build.sh
