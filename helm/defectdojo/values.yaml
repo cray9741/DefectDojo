@@ -1,19 +1,19 @@
 ---
 # Global settings
 # create defectdojo specific secret
-createSecret: false
+createSecret: true
 # create rabbitmq secret in defectdojo chart, outside of rabbitmq chart
-createRabbitMqSecret: false
+createRabbitMqSecret: true
 # create redis secret in defectdojo chart, outside of redis chart
-createRedisSecret: false
+createRedisSecret: true
 # create mysql secret in defectdojo chart, outside of mysql chart
-createMysqlSecret: false
+createMysqlSecret: true
 # create postgresql secret in defectdojo chart, outside of postgresql chart
-createPostgresqlSecret: false
+createPostgresqlSecret: true
 # create postgresql-ha secret in defectdojo chart, outside of postgresql-ha chart
-createPostgresqlHaSecret: false
+createPostgresqlHaSecret: true
 # create postgresql-ha-pgpool secret in defectdojo chart, outside of postgresql-ha chart
-createPostgresqlHaPgpoolSecret: false
+createPostgresqlHaPgpoolSecret: true
 # Track configuration (trackConfig): will automatically respin application pods in case of config changes detection
 # can be:
 # - disabled, default
@@ -44,7 +44,7 @@ networkPolicy:
 # Set the "enable" field to true of the database type you select (if you want to use internal database) and false of the one you don't select
 database: postgresql
 # Primary hostname of instance
-host: defectdojo.default.minikube.local
+host: defectdojo.secops-ba.win
 
 # The full URL to your defectdojo instance, depends on the domain where DD is deployed, it also affects links in Jira
 # site_url: 'https://<yourdomain>'
@@ -91,7 +91,7 @@ tests:
 
 admin:
   user: admin
-  password:
+  password: admin
   firstName: Administrator
   lastName: User
   mail: admin@defectdojo.local
@@ -192,10 +192,11 @@ django:
   affinity: {}
   ingress:
     enabled: true
-    ingressClassName: ""
+    ingressClassName: "traefik"
     activateTLS: true
     secretName: defectdojo-tls
-    annotations: {}
+    annotations:
+      cert-manager.io/cluster-issuer: cloudflare-issuer
       # Restricts the type of ingress controller that can interact with our chart (nginx, traefik, ...)
       # kubernetes.io/ingress.class: nginx
       # Depending on the size and complexity of your scans, you might want to increase the default ingress timeouts if you see repeated 504 Gateway Timeouts
@@ -383,7 +384,7 @@ postgresql:
   primary:
     name: primary
     persistence:
-      enabled: true
+      enabled: false
     service:
       ports:
         postgresql: 5432
