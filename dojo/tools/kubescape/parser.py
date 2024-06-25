@@ -76,4 +76,3 @@ class KubescapeParser:
 
         return findings
 
-
