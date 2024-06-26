@@ -485,7 +485,7 @@ rabbitmq:
     password: ""
     erlangCookie: ""
     existingPasswordSecret: defectdojo-rabbitmq-specific
-    secretPasswordKey: "rabbitmq-password"
+    secretPasswordKey: rabbitmq-password
     existingErlangSecret: defectdojo-rabbitmq-specific
   memoryHighWatermark:
     enabled: true
