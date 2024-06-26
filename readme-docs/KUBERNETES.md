@@ -108,7 +108,7 @@ If you have stored your images in a private registry, you can install defectdojo
 ```
 
 ### TroubleShooting
-- If defectdojo-rabbitmq-0 is "0/1" and timeout on imports this run these commands
+- If defectdojo-rabbitmq-0 is "0/1" run these commands
 ```zsh
   chmod +x change_rabbitmq_password.sh
   ./change_rabbitmq_password.sh  
