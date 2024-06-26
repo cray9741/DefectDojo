@@ -478,7 +478,7 @@ gke:
   # Workload Identity allows the K8s service account to assume the IAM access of a GCP service account to interact with other GCP services
   workloadIdentityEmail: ""
 
-abbitmq:
+rabbitmq:
   enabled: true
   replicaCount: 1
   auth:
