@@ -540,7 +540,7 @@ redis:
 # NOTE  This is just an exmaple, do not store sensitive data in plain text form, better inject it during the deployment/upgrade by --set extraSecrets.secret=someSecret
 # extraSecrets:
 #   DD_SOCIAL_AUTH_AUTH0_SECRET: 'xxx'
-extraConfigs: {}
+extraConfigs: { DD_ASYNC_FINDING_IMPORT: "true"}
 
 # To add (or override) extra variables which need to be pulled from another configMap, you can
 # use extraEnv. For example:
