@@ -373,7 +373,7 @@ postgresql:
     tag: 11.22.0-debian-11-r4
   auth:
     username: defectdojo
-    password: ""
+    password: "admin"
     database: defectdojo
     existingSecret: defectdojo-postgresql-specific
     secretKeys:
