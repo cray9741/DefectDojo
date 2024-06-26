@@ -41,7 +41,6 @@ helm-charts/defectdojo	    1.5.1        	1.14.0-dev 	A Helm chart for Kubernetes
 ```zsh
 git clone https://github.com/cray9741/DefectDojo
 cd DefectDojo
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 
 Helm >= v3
@@ -58,6 +57,7 @@ Now, install the helm chart into minikube.
 
 If you have setup an ingress controller:
 ```zsh
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 DJANGO_INGRESS_ENABLED=true
 ```
 
@@ -81,7 +81,7 @@ Warning: Use the `createSecret*=true` flags only upon first install. For re-inst
 If you want to change kubernetes configuration of use an updated docker image (evolution of defectDojo code), upgrade the application:
 ```
 helm upgrade  defectdojo ./helm/defectdojo/ \
-   --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} \
+   --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED}
 ```
 ### Re-install the chart
 In case of issue or in any other situation where you need to re-install the chart, you can do it and re-use the same secrets.
@@ -94,8 +94,7 @@ helm uninstall defectdojo
 helm install \
   defectdojo \
   ./helm/defectdojo \
-  --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} \
-  --set django.ingress.activateTLS=${DJANGO_INGRESS_ACTIVATE_TLS}
+  --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} 
 ```
 
 ### Installing from a private registry
