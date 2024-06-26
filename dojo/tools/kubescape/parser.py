@@ -1,6 +1,7 @@
 import json
 from dojo.models import Finding
 
+
 class KubescapeParser:
     def get_scan_types(self):
         return ["Kubescape JSON Importer"]
@@ -19,7 +20,7 @@ class KubescapeParser:
                     formatted.append(f"{'  ' * indent}{key}:")
                     formatted.append(self.format_resource_object(value, indent + 1))
                 else:
-                    formatted.append(f"{'  ' * indent}{key}: {value}")
+                    formatted.append(f"{'  ' * (indent + 1)}{value}")
         elif isinstance(obj, list):
             for item in obj:
                 if isinstance(item, (dict, list)):
@@ -40,39 +41,54 @@ class KubescapeParser:
         else:
             return "Info"
 
-    def get_findings(self, filename, test):
+    def get_findings(self, file, test):
         findings = []
-        try:
-            data = json.load(filename)
-        except ValueError:
-            data = {}
+        seen_findings = set()  # Set to keep track of unique findings
 
-        for control_id, control_data in data.get("summaryDetails", {}).get("controls", {}).items():
+        try:
+            data = json.load(file)
+        except (ValueError, FileNotFoundError):
+            return findings
+
+        resources = data.get("resources", [])
+        controls = data.get("summaryDetails", {}).get("controls", {})
+
+        for control_id, control_data in controls.items():
+            control_status = control_data.get("status", "N/A").lower()
+            if control_status == "passed":
+                continue  # Skip entries with status "passed"
+
             control_name = control_data.get("name", "Unnamed Control")
-            control_status = control_data.get("status", "N/A")
             control_compliance_score = control_data.get("complianceScore", "N/A")
             control_score = control_data.get("score", 0)
             severity = self.map_severity(control_score)
 
-            for resource in data.get("resources", []):
+            for resource in resources:
                 resource_id = resource.get("resourceID", "N/A")
                 resource_object = resource.get("object", {})
 
-                description = f"{control_name}\n\n"
-                description += f"**resourceID:** {resource_id}\n\n"
-                description += f"**resource object:**\n{self.format_resource_object(resource_object)}\n\n"
-                description += f"**controlID:** {control_id}\n\n"
-                description += f"**status:** {control_status}\n\n"
-                description += f"**complianceScore:** {control_compliance_score}\n\n"
+                # Create a unique key for the finding
+                finding_key = (control_id, resource_id)
+                if finding_key in seen_findings:
+                    continue  # Skip duplicate findings
 
-                find = Finding(
+                seen_findings.add(finding_key)  # Mark this finding as seen
+
+                description = (
+                    f"{control_name}\n\n"
+                    f"**resourceID:** {resource_id}\n\n"
+                    f"**resource object:**\n{self.format_resource_object(resource_object)}\n\n"
+                    f"**controlID:** {control_id}\n\n"
+                    f"**status:** {control_status}\n\n"
+                    f"**complianceScore:** {control_compliance_score}\n\n"
+                )
+
+                findings.append(Finding(
                     title=str(control_id),
                     test=test,
                     description=description,
                     severity=severity,
                     static_finding=True
-                )
-                findings.append(find)
+                ))
 
         return findings
-
