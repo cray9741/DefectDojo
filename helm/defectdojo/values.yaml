@@ -354,7 +354,7 @@ mysql:
   enabled: false
   auth:
     username: defectdojo
-    password: ""
+    password: "admin"
     rootPassword: ""
     database: defectdojo
     existingSecret: defectdojo-mysql-specific
