@@ -32,6 +32,86 @@ NAME                      	CHART VERSION	APP VERSION	DESCRIPTION
 helm-charts/defectdojo	    1.5.1        	1.14.0-dev 	A Helm chart for Kubernetes to install DefectDojo
 ```
 
+
+## Kubernetes EC2 Quickstart
+1. Helm installed locally
+2. Kube installed locally
+3. Latest cloned copy of DefectDojo
+
+```zsh
+git clone https://github.com/cray9741/DefectDojo
+cd DefectDojo
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+
+Helm >= v3
+```zsh
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+```
+Then pull the dependent charts:
+```zsh
+helm dependency update ./helm/defectdojo
+```
+
+Now, install the helm chart into minikube.
+
+If you have setup an ingress controller:
+```zsh
+DJANGO_INGRESS_ENABLED=true
+```
+
+If you have configured TLS:
+else:
+```zsh
+DJANGO_INGRESS_ACTIVATE_TLS=false
+```
+```zsh
+helm install \
+  defectdojo \
+  ./helm/defectdojo \
+  --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} \
+  --set createSecret=true \
+  --set createRedisSecret=true \
+  --set createPostgresqlSecret=true
+```
+Warning: Use the `createSecret*=true` flags only upon first install. For re-installs, see `§Re-install the chart`
+
+### Upgrade the chart
+If you want to change kubernetes configuration of use an updated docker image (evolution of defectDojo code), upgrade the application:
+```
+helm upgrade  defectdojo ./helm/defectdojo/ \
+   --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} \
+```
+### Re-install the chart
+In case of issue or in any other situation where you need to re-install the chart, you can do it and re-use the same secrets.
+
+**Note that when using mysql, this will create a new database, while with postgresql you'll keep the same database (more information below)**
+
+```zsh
+# helm 3
+helm uninstall defectdojo
+helm install \
+  defectdojo \
+  ./helm/defectdojo \
+  --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} \
+  --set django.ingress.activateTLS=${DJANGO_INGRESS_ACTIVATE_TLS}
+```
+
+### Installing from a private registry
+If you have stored your images in a private registry, you can install defectdojo chart with (helm 3).
+
+- First create a secret named "defectdojoregistrykey" based on the credentials that can pull from the registry: see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+- Then install the chart with the same commands as before but adding:
+```zsh
+  --set repositoryPrefix=<myregistry.com/path> \
+  --set imagePullSecrets=defectdojoregistrykey
+```
+
+
+
+
+
 ## Kubernetes Local Quickstart
 
 Requirements:
@@ -42,11 +122,8 @@ Requirements:
 
 ```zsh
 git clone https://github.com/DefectDojo/django-DefectDojo
-cd django-DefectDojo
+cd DefectDojo
 
-minikube start
-minikube addons enable ingress
-```
 
 Helm >= v3
 ```zsh
