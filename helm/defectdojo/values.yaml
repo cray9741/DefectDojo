@@ -482,11 +482,10 @@ rabbitmq:
   enabled: true
   replicaCount: 1
   auth:
-    password: ""
-    erlangCookie: ""
     existingPasswordSecret: defectdojo-rabbitmq-specific
     secretPasswordKey: rabbitmq-password
     existingErlangSecret: defectdojo-rabbitmq-specific
+    secretErlangKey: rabbitmq-erlang-cookie
   memoryHighWatermark:
     enabled: true
     type: relative
