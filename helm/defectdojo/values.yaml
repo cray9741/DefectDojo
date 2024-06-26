@@ -483,6 +483,7 @@ rabbitmq:
   replicaCount: 1
   auth:
     username: "user"  # Ensure the username matches what RabbitMQ expects
+    password: "rabbitmq-password"
     existingPasswordSecret: defectdojo-rabbitmq-specific
     secretPasswordKey: "rabbitmq-password"
     existingErlangSecret: defectdojo-rabbitmq-specific
