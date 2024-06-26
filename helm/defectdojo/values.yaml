@@ -478,40 +478,21 @@ gke:
   # Workload Identity allows the K8s service account to assume the IAM access of a GCP service account to interact with other GCP services
   workloadIdentityEmail: ""
 
-rabbitmq:
+abbitmq:
   enabled: true
   replicaCount: 1
   auth:
+    password: ""
+    erlangCookie: ""
     existingPasswordSecret: defectdojo-rabbitmq-specific
-    secretPasswordKey: rabbitmq-password
+    secretPasswordKey: "rabbitmq-password"
     existingErlangSecret: defectdojo-rabbitmq-specific
-    secretErlangKey: rabbitmq-erlang-cookie
-  extraConfiguration: |
-    load_definitions = /app/load_definition.json
-  extraSecrets:
-    load-definition.json: |
-      {
-        "users": [
-          {
-            "name": "{{ .Values.rabbitmq.auth.username }}",
-            "password_hash": "{{ .Values.rabbitmq.auth.password }}",
-            "tags": "administrator"
-          }
-        ],
-        "permissions": [
-          {
-            "user": "{{ .Values.rabbitmq.auth.username }}",
-            "vhost": "/",
-            "configure": ".*",
-            "write": ".*",
-            "read": ".*"
-          }
-        ]
-      }
   memoryHighWatermark:
     enabled: true
     type: relative
     value: 0.5
+  affinity: {}
+  nodeSelector: {}
   resources:
     requests:
       cpu: 100m
