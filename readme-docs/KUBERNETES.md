@@ -108,20 +108,11 @@ If you have stored your images in a private registry, you can install defectdojo
 ```
 
 ### TroubleShooting
-- If defectdojo-rabbitmq-0 is "0/1" and timeout on imports this do this check
+- If defectdojo-rabbitmq-0 is "0/1" and timeout on imports this run these commands
 ```zsh
-  kubectl get secret defectdojo-rabbitmq-specific -o jsonpath="{.data.rabbitmq-password}" | base64 --decode
+  chmod +x change_rabbitmq_password.sh
+  ./change_rabbitmq_password.sh  
 ```
-- Copy the decoded password
-- Then run this command to get inside the pod 
-```zsh
-  kubectl exec -it defectdojo-rabbitmq-0 -n default -- /bin/bash
-```
-- Reset password in pod
-```zsh
-  rabbitmqctl change_password <password>
-```
-
 
 
 ## Kubernetes Local Quickstart
@@ -392,18 +383,16 @@ helm install \
 helm install \
   defectdojo \
   ./helm/defectdojo \
-  --namespace="${K8S_NAMESPACE}" \
-  --set host="defectdojo.${TLS_CERT_DOMAIN}" \
+  --namespace="defectdojo" \
   --set django.replicas=3 \
   --set celery.replicas=3 \
   --set rabbitmq.replicas=3 \
-  --set django.ingress.secretName="minikube-tls" \
   --set mysql.enabled=false \
   --set database=postgresql \
   --set postgresql.enabled=true \
   --set postgresql.replication.enabled=true \
   --set postgresql.replication.slaveReplicas=3 \
-  --set createSecret=true \
+  --set createSecret=false \
   --set createRabbitMqSecret=true \
   --set createRedisSecret=true \
   --set createMysqlSecret=true \
