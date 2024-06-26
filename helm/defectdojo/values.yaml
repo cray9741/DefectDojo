@@ -486,12 +486,32 @@ rabbitmq:
     secretPasswordKey: rabbitmq-password
     existingErlangSecret: defectdojo-rabbitmq-specific
     secretErlangKey: rabbitmq-erlang-cookie
+  extraConfiguration: |
+    load_definitions = /app/load_definition.json
+  extraSecrets:
+    load-definition.json: |
+      {
+        "users": [
+          {
+            "name": "{{ .Values.rabbitmq.auth.username }}",
+            "password_hash": "{{ .Values.rabbitmq.auth.password }}",
+            "tags": "administrator"
+          }
+        ],
+        "permissions": [
+          {
+            "user": "{{ .Values.rabbitmq.auth.username }}",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+          }
+        ]
+      }
   memoryHighWatermark:
     enabled: true
     type: relative
     value: 0.5
-  affinity: {}
-  nodeSelector: {}
   resources:
     requests:
       cpu: 100m
@@ -506,6 +526,7 @@ rabbitmq:
     enabled: true
     runAsUser: 1001
     runAsNonRoot: true
+
 
 # For more advance options check the bitnami chart documentation: https://github.com/bitnami/charts/tree/master/bitnami/redis
 redis:
