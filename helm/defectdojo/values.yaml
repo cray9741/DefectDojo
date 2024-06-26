@@ -484,9 +484,10 @@ rabbitmq:
   auth:
     username: "user"  # Ensure the username matches what RabbitMQ expects
     existingPasswordSecret: defectdojo-rabbitmq-specific
-    secretPasswordKey: "rabbitmq-password"
-    existingErlangSecret: defectdojo-rabbitmq-specific
-    secretErlangCookieKey: "rabbitmq-erlang-cookie"
+    secretKeys:
+      secretPasswordKey: "rabbitmq-password"
+      existingErlangSecret: defectdojo-rabbitmq-specific
+      secretErlangCookieKey: "rabbitmq-erlang-cookie"
   memoryHighWatermark:
     enabled: true
     type: relative
