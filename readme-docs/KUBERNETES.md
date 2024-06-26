@@ -107,7 +107,20 @@ If you have stored your images in a private registry, you can install defectdojo
   --set imagePullSecrets=defectdojoregistrykey
 ```
 
-
+### TroubleShooting
+- If defectdojo-rabbitmq-0 is "0/1" and timeout on imports this do this check
+```zsh
+  kubectl get secret defectdojo-rabbitmq-specific -o jsonpath="{.data.rabbitmq-password}" | base64 --decode
+```
+- Copy the decoded password
+- Then run this command to get inside the pod 
+```zsh
+  kubectl exec -it defectdojo-rabbitmq-0 -n default -- /bin/bash
+```
+- Reset password in pod
+```zsh
+  rabbitmqctl change_password <password>
+```
 
 
 
