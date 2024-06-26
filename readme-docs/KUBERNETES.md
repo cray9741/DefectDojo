@@ -70,6 +70,8 @@ DJANGO_INGRESS_ACTIVATE_TLS=false
 helm install \
   defectdojo \
   ./helm/defectdojo \
+  --create-namespace \
+  --namespace defectdojo \
   --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} \
   --set createSecret=true \
   --set createRedisSecret=true \
@@ -94,6 +96,8 @@ helm uninstall defectdojo
 helm install \
   defectdojo \
   ./helm/defectdojo \
+  --create-namespace \
+  --namespace defectdojo \
   --set django.ingress.enabled=${DJANGO_INGRESS_ENABLED} 
 ```
 
