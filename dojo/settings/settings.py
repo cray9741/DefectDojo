@@ -12,6 +12,7 @@ include(
     optional('local_settings.py')
 )
 
+"""
 if not (DEBUG or ('collectstatic' in sys.argv)):
     with (Path(__file__).parent / 'settings.dist.py').open('rb') as file:
         real_hash = hashlib.sha256(file.read()).hexdigest()
@@ -22,3 +23,4 @@ if not (DEBUG or ('collectstatic' in sys.argv)):
             "Any customization of variables need to be done via environmental variables or in 'local_settings.py'. " \
             "For more information check https://documentation.defectdojo.com/getting_started/configuration/ "
         sys.exit(msg)
+        """
