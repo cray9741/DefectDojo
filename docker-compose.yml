@@ -14,7 +14,7 @@ services:
     image: "defectdojo/defectdojo-nginx:${NGINX_VERSION:-latest}"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nginx.rule=Host(`test.yourdomain.com`)"
+      - "traefik.http.routers.nginx.rule=Host(`defectdojo.secops-ba.win`)"
       - "traefik.http.routers.nginx.entrypoints=websecure"
       - "traefik.http.routers.nginx.tls=true"
       - "traefik.http.routers.nginx.tls.certresolver=myresolver"
@@ -32,8 +32,8 @@ services:
     volumes:
       - defectdojo_media:/usr/share/nginx/html/media
     ports:
-      - target: 8080
-        published: ${DD_PORT:-8080}
+      - target: 8090
+        published: ${DD_PORT:-8090}
         protocol: tcp
         mode: host
       - target: 8443
