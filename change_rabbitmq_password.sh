@@ -10,4 +10,4 @@ kubectl exec -it defectdojo-rabbitmq-0 -n defectdojo -- /bin/bash -c "
 "
 
 # Step 4: Restart the stateful set
-kubectl rollout restart statefulset defectdojo-rabbitmq -n default
+kubectl rollout restart statefulset defectdojo-rabbitmq -n defectdojo
