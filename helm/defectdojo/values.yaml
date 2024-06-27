@@ -143,14 +143,14 @@ celery:
         memory: 512Mi
     tolerations: []
     app_settings:
-      #pool_type: solo
+      pool_type: solo
       # Performance improved celery worker config when needing to deal with a lot of findings (e.g deduplication ops)
       # Comment out the "solo" line, and uncomment the following lines.
-       pool_type: prefork
-       autoscale_min: 2
-       autoscale_max: 8
-       concurrency: 8
-       prefetch_multiplier: 128
+       #pool_type: prefork
+       #autoscale_min: 2
+       #autoscale_max: 8
+       #concurrency: 8
+       #prefetch_multiplier: 128
 
   # A list of extra volumes to mount. This
   # is useful for bringing in extra data that can be referenced by other configurations
