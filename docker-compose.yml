@@ -24,7 +24,7 @@ services:
     restart: always
     networks:
       - traefik
-      
+
   nginx:
     build:
       context: ./
@@ -65,7 +65,6 @@ services:
       dockerfile: "Dockerfile.django-${DEFECT_DOJO_OS:-debian}"
       target: django
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    restart: always
     networks:
       - traefik
     profiles:
@@ -93,7 +92,6 @@ services:
   
   celerybeat:
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    restart: always
     networks:
       - traefik
     profiles:
@@ -118,7 +116,6 @@ services:
   
   celeryworker:
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    restart: always
     networks:
       - traefik
     profiles:
@@ -144,7 +141,6 @@ services:
   
   initializer:
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    restart: always
     networks:
       - traefik
     profiles:
@@ -172,7 +168,6 @@ services:
   
   mysql:
     image: mysql:5.7.44@sha256:4bc6bc963e6d8443453676cae56536f4b8156d78bae03c0145cbe47c2aad73bb
-    restart: always
     networks:
       - traefik
     profiles:
@@ -189,7 +184,8 @@ services:
   
   postgres:
     image: postgres:16.3-alpine@sha256:e89da2c083a5405943408b6807cd1fd25dc9010c1294e30611b841778bedc653
-    restart: always
+    networks:
+      - traefik
     profiles: 
       - postgres-rabbitmq
       - postgres-redis
@@ -202,7 +198,6 @@ services:
   
   rabbitmq:
     image: rabbitmq:3.13.2-alpine@sha256:9880c790e61a6ba7f2740b208f5584c08ce2fe668ef4852d30e554a1c07b6f63
-    restart: always
     networks:
       - traefik
     profiles: 
