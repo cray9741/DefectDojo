@@ -7,6 +7,24 @@
 # customizing it to your particular situation.
 ---
 services:
+  reverse-proxy:
+    image: traefik:v2.11
+    command: --configFile=/etc/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./acme.json:/acme.json
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    restart: always
+    networks:
+      - traefik
+      
   nginx:
     build:
       context: ./
