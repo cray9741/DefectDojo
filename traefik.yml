@@ -13,6 +13,21 @@ certificatesResolvers:
       dnsChallenge:
         provider: cloudflare
         delayBeforeCheck: 0
+http:
+  routers:
+    nginx-router:
+      rule: "Host(`defectdojo.secops-ba.win`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: myresolver
+      service: nginx-service
+ 
+  services:
+    nginx-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.28.0.9:8090"
 
 providers:
   docker:

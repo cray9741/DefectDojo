@@ -32,10 +32,11 @@ services:
     image: "defectdojo/defectdojo-nginx:${NGINX_VERSION:-latest}"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nginx.rule=Host(`defectdojo.secops-ba.win`)"
-      - "traefik.http.routers.nginx.entrypoints=websecure"
-      - "traefik.http.routers.nginx.tls=true"
-      - "traefik.http.routers.nginx.tls.certresolver=myresolver"
+      - "traefik.http.routers.nginx-service.rule=Host(`defectdojo.secops-ba.win`)"
+      - "traefik.http.routers.nginx-service.entrypoints=websecure"
+      - "traefik.http.routers.nginx-service.tls=true"
+      - "traefik.http.routers.nginx-servicex.tls.certresolver=myresolver"
+      - "traefik.http.services.nginx-service.loadbalancer.server.port=8090"
     networks:
       - traefik
     profiles:
