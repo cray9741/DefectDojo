@@ -33,7 +33,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx-service.rule=Host(`defectdojo.secops-ba.win`)"
-      - "traefik.http.routers.nginx-service.entrypoints=websecure"
+      - "traefik.http.routers.nginx-service.entrypoints=web"
       - "traefik.http.routers.nginx-service.tls=true"
       - "traefik.http.routers.nginx-service.tls.certresolver=myresolver"
     networks:
