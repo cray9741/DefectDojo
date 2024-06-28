@@ -7,35 +7,35 @@
 # customizing it to your particular situation.
 ---
 services:
-  reverse-proxy:
-    image: traefik:v2.11
-    command: --configFile=/etc/traefik/traefik.yml
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8090:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik.yml:/etc/traefik/traefik.yml
-      - ./acme.json:/acme.json
-    environment:
-      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
-      - ACME_EMAIL=${ACME_EMAIL}
-    restart: always
-    networks:
-      - traefik
+  # reverse-proxy:
+  #   image: traefik:v2.11
+  #   command: --configFile=/etc/traefik/traefik.yml
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "8090:8080"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./traefik.yml:/etc/traefik/traefik.yml
+  #     - ./acme.json:/acme.json
+  #   environment:
+  #     - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+  #     - ACME_EMAIL=${ACME_EMAIL}
+  #   restart: always
+  #   networks:
+  #     - traefik
 
   nginx:
     build:
       context: ./
       dockerfile: "Dockerfile.nginx-${DEFECT_DOJO_OS:-debian}"
     image: "defectdojo/defectdojo-nginx:${NGINX_VERSION:-latest}"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nginx-service.rule=Host(`defectdojo.secops-ba.win`)"
-      - "traefik.http.routers.nginx-service.entrypoints=web"
-      - "traefik.http.routers.nginx-service.tls=true"
-      - "traefik.http.routers.nginx-service.tls.certresolver=myresolver"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.nginx-service.rule=Host(`defectdojo.secops-ba.win`)"
+    #   - "traefik.http.routers.nginx-service.entrypoints=web"
+    #   - "traefik.http.routers.nginx-service.tls=true"
+    #   - "traefik.http.routers.nginx-service.tls.certresolver=myresolver"
     networks:
       - traefik
     profiles:
@@ -49,6 +49,9 @@ services:
       NGINX_METRICS_ENABLED: "${NGINX_METRICS_ENABLED:-false}"
     volumes:
       - defectdojo_media:/usr/share/nginx/html/media
+      - NGINX_HOST=defectdojo.secops-ba.win
+      - NGINX_PORT=80
+      
     ports:
       - target: 8080
         published: ${DD_PORT:-8080}

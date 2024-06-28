@@ -1,0 +1,31 @@
+{{- if .Values.django.ingress.enabled -}}
+{{- $fullName := include "defectdojo.fullname" . -}}
+apiVersion:  traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $fullName }}
+  labels:
+    defectdojo.org/component: django
+    app.kubernetes.io/name: {{ include "defectdojo.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "defectdojo.chart" . }}
+
+spec:
+{{- if .Values.django.ingress.activateTLS }}
+  entryPoints:
+    - web
+    - websecure
+  tls:
+    secretName: {{ .Values.django.ingress.secretName }}
+{{- end }}   
+  routes:
+  - match: Host(`{{ .Values.host }}`) && PathPrefix(`/`)
+    kind: Rule
+    services:
+    - name: {{ $fullName }}-django
+      kind: Service
+      port: 80
+      scheme: http
+
+{{- end }}
