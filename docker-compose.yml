@@ -36,7 +36,6 @@ services:
       - "traefik.http.routers.nginx-service.entrypoints=websecure"
       - "traefik.http.routers.nginx-service.tls=true"
       - "traefik.http.routers.nginx-service.tls.certresolver=myresolver"
-      - "traefik.http.services.nginx-service.loadbalancer.server.port=8080"
     networks:
       - traefik
     profiles:
