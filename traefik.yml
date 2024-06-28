@@ -32,3 +32,7 @@ http:
 providers:
   docker:
     exposedByDefault: false
+
+api:
+  dashboard: true
+  insecure: true
