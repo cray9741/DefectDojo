@@ -7,37 +7,11 @@
 # customizing it to your particular situation.
 ---
 services:
-  reverse-proxy:
-    image: traefik:v2.11
-    command: --configFile=/etc/traefik/traefik.yml
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8090:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik.yml:/etc/traefik/traefik.yml
-      - ./acme.json:/acme.json
-    environment:
-      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
-      - ACME_EMAIL=${ACME_EMAIL}
-    restart: always
-    networks:
-      - traefik
-
   nginx:
     build:
       context: ./
       dockerfile: "Dockerfile.nginx-${DEFECT_DOJO_OS:-debian}"
     image: "defectdojo/defectdojo-nginx:${NGINX_VERSION:-latest}"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nginx-service.rule=Host(`defectdojo.secops-ba.win`)"
-      - "traefik.http.routers.nginx-service.entrypoints=web"
-      - "traefik.http.routers.nginx-service.tls=true"
-      - "traefik.http.routers.nginx-service.tls.certresolver=myresolver"
-    networks:
-      - traefik
     profiles:
       - mysql-rabbitmq
       - mysql-redis
@@ -58,15 +32,13 @@ services:
         published: ${DD_TLS_PORT:-8443}
         protocol: tcp
         mode: host
-  
+
   uwsgi:
     build:
       context: ./
       dockerfile: "Dockerfile.django-${DEFECT_DOJO_OS:-debian}"
       target: django
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    networks:
-      - traefik
     profiles:
       - mysql-rabbitmq
       - mysql-redis
@@ -89,11 +61,9 @@ services:
           source: ./docker/extra_settings
           target: /app/docker/extra_settings
         - "defectdojo_media:${DD_MEDIA_ROOT:-/app/media}"
-  
+
   celerybeat:
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    networks:
-      - traefik
     profiles:
       - mysql-rabbitmq
       - mysql-redis
@@ -113,11 +83,9 @@ services:
         - type: bind
           source: ./docker/extra_settings
           target: /app/docker/extra_settings
-  
+
   celeryworker:
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    networks:
-      - traefik
     profiles:
       - mysql-rabbitmq
       - mysql-redis
@@ -138,11 +106,9 @@ services:
           source: ./docker/extra_settings
           target: /app/docker/extra_settings
         - "defectdojo_media:${DD_MEDIA_ROOT:-/app/media}"
-  
+
   initializer:
     image: "defectdojo/defectdojo-django:${DJANGO_VERSION:-latest}"
-    networks:
-      - traefik
     profiles:
       - mysql-rabbitmq
       - mysql-redis
@@ -165,11 +131,9 @@ services:
         - type: bind
           source: ./docker/extra_settings
           target: /app/docker/extra_settings
-  
+
   mysql:
     image: mysql:5.7.44@sha256:4bc6bc963e6d8443453676cae56536f4b8156d78bae03c0145cbe47c2aad73bb
-    networks:
-      - traefik
     profiles:
       - mysql-rabbitmq
       - mysql-redis
@@ -181,11 +145,9 @@ services:
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
     volumes:
       - defectdojo_data:/var/lib/mysql
-  
+
   postgres:
     image: postgres:16.3-alpine@sha256:e89da2c083a5405943408b6807cd1fd25dc9010c1294e30611b841778bedc653
-    networks:
-      - traefik
     profiles: 
       - postgres-rabbitmq
       - postgres-redis
@@ -195,36 +157,26 @@ services:
       POSTGRES_PASSWORD: ${DD_DATABASE_PASSWORD}
     volumes:
       - defectdojo_postgres:/var/lib/postgresql/data
-  
+
   rabbitmq:
     image: rabbitmq:3.13.2-alpine@sha256:9880c790e61a6ba7f2740b208f5584c08ce2fe668ef4852d30e554a1c07b6f63
-    networks:
-      - traefik
     profiles: 
       - mysql-rabbitmq
       - postgres-rabbitmq
     volumes:
        - defectdojo_rabbitmq:/var/lib/rabbitmq
-  
+
   redis:
     image: redis:7.2.5-alpine@sha256:0389bb8416d7c6ed065c25745179bf5d358e5d9472dd30a687ab36ffbb650262
-    networks:
-      - traefik
     profiles: 
       - mysql-redis
       - postgres-redis
     volumes:
       - defectdojo_redis:/data
-networks:
-  traefik:
-    external: true
 
-    
 volumes:
   defectdojo_data: {}
   defectdojo_postgres: {}
   defectdojo_media: {}
   defectdojo_rabbitmq: {}
   defectdojo_redis: {}
-
-

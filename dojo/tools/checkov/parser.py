@@ -22,16 +22,6 @@ class CheckovParser:
         return findings
 
     def parse_json(self, json_output):
-        """Parse JSON report.
-        Checkov may return only one `check_type` (where the report is just a JSON)
-        or more (where the report is an array of JSONs).
-        To address all scenarios we force this method to return a list of JSON objects.
-
-        :param json_output: JSON report
-        :type json_output: file
-        :return: JSON array of objects
-        :rtype: list
-        """
         try:
             data = json_output.read()
             try:
@@ -42,14 +32,13 @@ class CheckovParser:
             msg = "Invalid format"
             raise ValueError(msg)
 
-        return (
-            [deserialized] if not isinstance(deserialized, list) else deserialized
-        )
+        return [deserialized] if not isinstance(deserialized, list) else deserialized
 
     def get_items(self, tree, test, check_type):
         items = []
 
-        failed_checks = tree.get("vulnerabilities", [])
+        # Extract failed checks from the JSON structure
+        failed_checks = tree.get("results", {}).get("failed_checks", [])
         for node in failed_checks:
             item = self.get_item(node, test, check_type)
             if item:
@@ -58,33 +47,27 @@ class CheckovParser:
         return items
 
     def get_item(self, vuln, test, check_type):
-        title = vuln.get("id", "No title provided")
+        title = vuln.get("check_id", "No title provided")
         description = f"Check Type: {check_type}\n"
-        description += f"Description: {vuln.get('description', 'No description provided')}\n"
-        if vuln.get("id"):
-            description += f"Check Id: {vuln['id']}\n"
+        description += f"Check Name: {vuln.get('check_name', 'No check name provided')}\n"
+        description += f"Result: {vuln.get('check_result', {}).get('result', 'No result provided')}\n"
+        if vuln.get("check_id"):
+            description += f"Check Id: {vuln['check_id']}\n"
 
-        file_path = None
-        resource = None
-        if "affects" in vuln and vuln["affects"]:
-            affected = vuln["affects"][0]
-            file_path = affected.get("ref")
-            resource = affected.get("ref")
+        file_path = vuln.get("file_path")
+        resource = vuln.get("resource")
 
-        # Map unsupported severity levels to supported ones
+        # Set severity based on ratings, default to Medium if not provided
         severity = "Medium"
-        if "ratings" in vuln and vuln["ratings"]:
-            severity_value = vuln["ratings"][0].get("severity", "Medium").capitalize()
-            if severity_value not in ['Info', 'Low', 'Medium', 'High', 'Critical']:
-                severity = "Medium"
-            else:
+        severity_value = vuln.get("severity", "Medium")
+        if severity_value:
+            severity_value = severity_value.capitalize()
+            if severity_value in ['Info', 'Low', 'Medium', 'High', 'Critical']:
                 severity = severity_value
 
         mitigation = ""
 
-        references = ""
-        if "advisories" in vuln and vuln["advisories"]:
-            references = ", ".join([adv["url"] for adv in vuln["advisories"]])
+        references = vuln.get("guideline", "")
 
         return Finding(
             title=title,

@@ -1,8 +1,6 @@
 import hashlib
 import json
-
 from dojo.models import Finding
-
 
 class TruffleHogParser:
     def get_scan_types(self):
@@ -41,7 +39,8 @@ class TruffleHogParser:
 
             file = json_data.get("path")
             reason = json_data.get("reason")
-            titleText = f"Hard Coded {reason} in: {file}"
+            commit_hash = json_data.get("commitHash")
+            titleText = f"Hard Coded {reason} in commit hash: {commit_hash}"
             commit = json_data.get("commit")
             description = "**Commit:** " + str(commit).split("\n")[0] + "\n"
             description += (
@@ -56,9 +55,7 @@ class TruffleHogParser:
             description += f"**Path:** {file}" + "\n"
 
             severity = "High"
-            if reason == "High Entropy":
-                severity = "Info"
-            elif "Oauth" in reason or "AWS" in reason or "Heroku" in reason:
+            if "Oauth" in reason or "AWS" in reason or "Heroku" in reason:
                 severity = "Critical"
             elif reason == "Generic Secret":
                 severity = "Medium"
@@ -66,7 +63,7 @@ class TruffleHogParser:
             strings_found = "".join(
                 string + "\n" for string in json_data.get("stringsFound")
             )
-            dupe_key = hashlib.md5((file + reason).encode("utf-8")).hexdigest()
+            dupe_key = hashlib.md5((file + reason + commit_hash).encode("utf-8")).hexdigest()
             description += (
                 "\n**Strings Found:**\n```" + strings_found + "```\n"
             )
@@ -77,8 +74,6 @@ class TruffleHogParser:
                 finding.nb_occurences += 1
                 dupes[dupe_key] = finding
             else:
-                dupes[dupe_key] = True
-
                 finding = Finding(
                     title=titleText,
                     test=test,
@@ -177,8 +172,6 @@ class TruffleHogParser:
                 finding.nb_occurences += 1
                 dupes[dupe_key] = finding
             else:
-                dupes[dupe_key] = True
-
                 finding = Finding(
                     title=titleText,
                     test=test,
